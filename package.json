@@ -1,0 +1,18 @@
+{
+  "name": "story-app",
+  "version": "1.0.0",
+  "description": "Aplikasi berbagi cerita dengan fitur kamera dan peta",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "idb": "^8.0.3",
+    "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

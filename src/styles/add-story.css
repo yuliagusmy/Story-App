@@ -1,0 +1,334 @@
+/* Map styles */
+#map {
+  width: 100%;
+  height: 220px;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.07);
+  border: 1px solid #e3eafc;
+}
+
+/* Layer control styles */
+.leaflet-control-layers {
+  border: none !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+  background: white !important;
+  padding: 6px !important;
+}
+
+.leaflet-control-layers-toggle {
+  width: 36px !important;
+  height: 36px !important;
+  background-size: 18px 18px !important;
+}
+
+.leaflet-control-layers-expanded {
+  padding: 6px 10px !important;
+  min-width: 150px !important;
+}
+
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+  display: block !important;
+  position: relative !important;
+}
+
+.leaflet-control-layers-selector {
+  margin-right: 8px !important;
+}
+
+.leaflet-control-layers label {
+  margin-bottom: 5px !important;
+  font-size: 14px !important;
+  color: #333 !important;
+}
+
+/* Tambah Story Modern Card */
+.add-story-container {
+  max-width: 800px;
+  padding: 2.5rem 2.5rem;
+  margin: 2.5rem auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(44, 62, 80, 0.10);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.add-story-container h2 {
+  text-align: center;
+  color: #1a237e;
+  margin-bottom: 1.5rem;
+  font-size: 2em;
+  font-weight: 800;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  color: #666;
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 0.85rem;
+  border: 1.5px solid #ddd;
+  border-radius: 6px;
+  font-size: 1.05rem;
+  transition: border 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.13);
+}
+
+.manual-location-inputs label {
+  font-size: 0.98em;
+  font-weight: 600;
+  color: #4a90e2;
+  margin-bottom: 0.3rem;
+  display: block;
+}
+.manual-location-inputs input[type="number"] {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border: 1.5px solid #e3eafc;
+  border-radius: 8px;
+  font-size: 1.05em;
+  margin-bottom: 0.2rem;
+  background: #f7fafd;
+  transition: border 0.2s;
+}
+.manual-location-inputs input[type="number"]:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0 0 0 2px #4a90e233;
+}
+
+.add-story-container button[type="submit"],
+.add-story-container .story-more-btn {
+  background: linear-gradient(90deg, #4a90e2 0%, #2d6da3 100%);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 14px 36px;
+  font-size: 1.1em;
+  font-weight: 700;
+  margin-top: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(74,144,226,0.10);
+  transition: background 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+}
+.add-story-container button[type="submit"]:hover,
+.add-story-container .story-more-btn:hover {
+  background: linear-gradient(90deg, #2d6da3 0%, #4a90e2 100%);
+  box-shadow: 0 8px 24px rgba(44, 62, 80, 0.13);
+}
+
+/* Hapus style error-message dan success-message agar tidak tampil di form tambah cerita */
+.error-message, .success-message {
+  display: none !important;
+}
+
+.camera-container, .upload-controls, .drop-area {
+  margin-bottom: 1rem;
+}
+
+#photo-preview {
+  margin: 12px 0 0 0;
+  text-align: center;
+}
+
+#photo-preview img {
+  max-width: 100%;
+  max-height: 220px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Map container styles */
+.map-container {
+  width: 100%;
+  height: 400px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .add-story-container {
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .camera-controls {
+    flex-direction: column;
+  }
+
+  .map-container {
+    height: 300px;
+  }
+}
+
+@media (max-width: 600px) {
+  .add-story-container {
+    padding: 0.5rem 0.2rem;
+    border-radius: 10px;
+  }
+  .map-container {
+    height: 180px;
+  }
+}
+
+.add-story-title {
+  font-size: 2.2em;
+  font-weight: 900;
+  color: #1a237e;
+  text-align: center;
+  margin-bottom: 2.2rem;
+  letter-spacing: -0.02em;
+}
+.form-row {
+  margin-bottom: 2rem;
+}
+.camera-upload-row {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 16px rgba(44,62,80,0.08);
+  padding: 2rem 1.5rem;
+  gap: 2.5rem;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+.camera-container {
+  background: #f7fafd;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 1px 6px rgba(44,62,80,0.06);
+  width: 100%;
+}
+.camera-container video {
+  width: 100%;
+  border-radius: 8px;
+}
+.upload-controls {
+  background: none;
+  box-shadow: none;
+}
+#drop-area {
+  border: 2.5px dashed #4a90e2;
+  border-radius: 10px;
+  background: #f7fafd;
+  color: #1a237e;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 1.05em;
+  margin-top: 1rem;
+  transition: background 0.2s, border-color 0.2s;
+  cursor: pointer;
+}
+#drop-area.dragover {
+  background: #e3f0ff;
+  border-color: #2d6da3;
+  color: #2d6da3;
+}
+.photo-preview {
+  border: 2px solid #e3eafc;
+  background: #fff;
+  min-height: 160px;
+  margin-bottom: 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.photo-preview img {
+  max-width: 100%;
+  height: auto;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.10);
+  border-radius: 8px;
+}
+#videoElement {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 8px;
+}
+.btn-upload, .btn-camera {
+  width: 100%;
+  margin-bottom: 0.7rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1em;
+  background: linear-gradient(90deg, #4a90e2 0%, #2d6da3 100%);
+  color: #fff;
+  border: none;
+  transition: background 0.2s;
+}
+.btn-upload:hover, .btn-camera:hover {
+  background: linear-gradient(90deg, #2d6da3 0%, #4a90e2 100%);
+}
+.camera-controls {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.manual-location-inputs-row {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+.manual-location-input {
+  flex: 1;
+  min-width: 120px;
+}
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2.5rem;
+}
+.story-more-btn {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
+.camera-error-message {
+  color: #e74c3c;
+  font-size: 0.98em;
+  margin-top: 0.5rem;
+  min-height: 1.2em;
+}
+@media (max-width: 900px) {
+  .add-story-container {
+    padding: 1.2rem 0.5rem;
+  }
+  .camera-upload-row {
+    flex-direction: column;
+    padding: 1rem 0.5rem;
+    gap: 1.2rem;
+  }
+  .camera-controls {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+}

@@ -1,0 +1,31 @@
+APP_URL=https://story-app-dicoding.web.app
+
+# Informasi Tambahan
+- Aplikasi menggunakan OpenStreetMap untuk layanan peta
+- Tidak memerlukan API key
+- Peta dapat digunakan secara gratis
+
+Nama: Yuliagus
+ID: fc558d5y1116
+URL Deployment: [URL Netlify Anda setelah deploy]
+
+Fitur yang sudah diimplementasikan:
+1. PWA (Progressive Web App)
+   - Application Shell Architecture
+   - Installable
+   - Offline capability
+   - Push Notification
+
+2. IndexedDB
+   - Menyimpan data story
+   - Menampilkan data offline
+   - Menghapus data
+
+3. Push Notification
+   - Subscribe notification
+   - Unsubscribe notification
+   - Menampilkan notifikasi saat ada story baru
+
+4. Deployment
+   - Deployed di Netlify
+   - URL dapat diakses publik
