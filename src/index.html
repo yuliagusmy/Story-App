@@ -123,6 +123,7 @@
       const confirmed = await showLogoutConfirmation();
       navAuth.classList.remove('active');
       if (confirmed) {
+        auth.logout();
         window.location.hash = '#/auth';
       }
     };
@@ -245,29 +246,62 @@
     function updateNavbarVisibility() {
       const hash = window.location.hash;
       const isLoggedIn = !!auth.getToken();
+      const navbar = document.querySelector('.bottom-navbar');
+
       if (isLoggedIn && hash !== '#/auth' && hash !== '#/register') {
         navbar.classList.remove('hidden');
       } else {
         navbar.classList.add('hidden');
       }
     }
+
     function updateActiveNav() {
       const hash = window.location.hash;
-      navHome.classList.remove('active');
-      navAdd.classList.remove('active');
-      navSaved.classList.remove('active');
-      navAuth.classList.remove('active');
-      if (hash === '#/' || hash === '' || hash === '#') navHome.classList.add('active');
-      else if (hash.startsWith('#/add')) navAdd.classList.add('active');
-      else if (hash.startsWith('#/saved')) navSaved.classList.add('active');
-      else if (hash.startsWith('#/auth')) navAuth.classList.add('active');
+      const navHome = document.getElementById('nav-home');
+      const navAdd = document.getElementById('nav-add');
+      const navSaved = document.getElementById('nav-saved');
+      const navAuth = document.getElementById('nav-auth');
+
+      if (navHome) navHome.classList.remove('active');
+      if (navAdd) navAdd.classList.remove('active');
+      if (navSaved) navSaved.classList.remove('active');
+      if (navAuth) navAuth.classList.remove('active');
+
+      if (hash === '#/' || hash === '' || hash === '#') {
+        if (navHome) navHome.classList.add('active');
+      } else if (hash.startsWith('#/add')) {
+        if (navAdd) navAdd.classList.add('active');
+      } else if (hash.startsWith('#/saved')) {
+        if (navSaved) navSaved.classList.add('active');
+      } else if (hash.startsWith('#/auth')) {
+        if (navAuth) navAuth.classList.add('active');
+      }
     }
+
     function updateNav() {
       updateNavbarVisibility();
       updateActiveNav();
     }
+
+    // Initial update
     updateNav();
+
+    // Update on hash change
     window.addEventListener('hashchange', updateNav);
+
+    // Update on login/logout
+    const originalLogin = auth.login;
+    auth.login = async function (...args) {
+      const result = await originalLogin.apply(this, args);
+      updateNav();
+      return result;
+    };
+
+    const originalLogout = auth.logout;
+    auth.logout = function () {
+      originalLogout.apply(this);
+      updateNav();
+    };
   </script>
 </body>
 

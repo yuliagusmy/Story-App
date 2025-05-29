@@ -1,5 +1,4 @@
 import AuthModel from '../models/auth-model.js';
-import { Router } from '../routes/router.js';
 import { AuthView } from '../views/auth-view.js';
 import { NotificationView } from '../views/notification-view.js';
 
@@ -7,7 +6,6 @@ export class AuthPresenter {
   constructor() {
     this.view = new AuthView();
     this.model = new AuthModel();
-    this.router = new Router();
     this.notification = new NotificationView();
     this.isSubmitting = false;
   }

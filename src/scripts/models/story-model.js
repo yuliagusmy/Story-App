@@ -6,7 +6,7 @@ export class StoryModel {
     this.authModel = new AuthModel();
   }
 
-  async getStories(size = 1000, page = 1) {
+  async getStories(size = 10, page = 1) {
     try {
       const token = this.authModel.getToken();
       if (!token) {
@@ -36,7 +36,10 @@ export class StoryModel {
         throw new Error('Format response tidak valid');
       }
 
-      return responseJson.listStory;
+      return {
+        stories: responseJson.listStory,
+        pageInfo: responseJson.pageInfo || { totalItems: responseJson.listStory.length }
+      };
     } catch (error) {
       console.error('Error fetching stories:', error);
       if (error.message.includes('Failed to fetch')) {

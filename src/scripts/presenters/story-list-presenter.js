@@ -20,18 +20,15 @@ export class StoryListPresenter {
   async loadStories(page) {
     try {
       this.view.showLoading();
-      const allStories = await this.model.getStories(1000); // Ambil semua, pagination di frontend
-      this.totalStories = allStories.length;
-      // Urutkan terbaru di atas
-      allStories.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      this.stories = allStories;
-      const startIdx = (page - 1) * this.pageSize;
-      const endIdx = startIdx + this.pageSize;
-      const storiesToShow = allStories.slice(startIdx, endIdx);
-      this.view.stories = storiesToShow;
+      const result = await this.model.getStories(this.pageSize, page);
+      this.stories = result.stories;
+      this.totalStories = result.pageInfo.totalItems;
+
+      this.view.stories = this.stories;
       this.view.hideLoading();
+
       this.view.renderPagination({
-        currentPage: this.currentPage,
+        currentPage: page,
         totalStories: this.totalStories,
         pageSize: this.pageSize,
         onNext: () => this.nextPage(),
