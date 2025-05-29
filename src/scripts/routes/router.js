@@ -4,6 +4,7 @@ import { AuthPresenter } from '../presenters/auth-presenter.js';
 import { SavedStoryPresenter } from '../presenters/saved-story-presenter.js';
 import { StoryDetailPresenter } from '../presenters/story-detail-presenter.js';
 import { StoryListPresenter } from '../presenters/story-list-presenter.js';
+import createNotFoundView from '../views/not-found-view.js';
 import { NotificationView } from '../views/notification-view.js';
 
 export class Router {
@@ -14,6 +15,7 @@ export class Router {
       '/auth': AuthPresenter,
       '/detail': StoryDetailPresenter,
       '/saved': SavedStoryPresenter,
+      '/404': createNotFoundView
     };
     this.contentElement = document.querySelector('#main-content');
     this.authModel = new AuthModel();
@@ -31,7 +33,7 @@ export class Router {
     const Presenter = this.routes[route];
 
     if (!Presenter) {
-      this.contentElement.innerHTML = '<h1>404 - Page Not Found</h1>';
+      this.contentElement.innerHTML = await this.routes['/404']();
       return;
     }
 
@@ -57,7 +59,7 @@ export class Router {
       this.contentElement.innerHTML = content;
 
       if (typeof presenter.view.afterRender === 'function') {
-        presenter.view.afterRender();
+        await presenter.view.afterRender();
       } else if (typeof presenter.afterRender === 'function') {
         await presenter.afterRender();
       }

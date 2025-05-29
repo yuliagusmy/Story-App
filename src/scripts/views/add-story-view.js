@@ -30,14 +30,16 @@ export class AddStoryView {
               <div class="camera-container" role="region" aria-label="Kamera">
                 <video
                   id="camera-preview"
+                  style="display:none;"
                   autoplay
                   playsinline
                   aria-label="Preview kamera"
                   aria-describedby="camera-error"
                 ></video>
+                <button type="button" id="camera-capture" class="btn-camera btn-camera-capture" style="display:none;margin:10px auto 0 auto;">Ambil Foto</button>
                 <div class="camera-error-message" id="camera-error"></div>
                 <div class="camera-controls">
-                  <button type="button" id="camera-button" class="btn-camera">Ambil Foto</button>
+                  <button type="button" id="camera-toggle" class="btn-camera btn-camera-toggle">Buka Kamera</button>
                   <button type="button" id="switch-camera" class="btn-camera">Ganti Kamera</button>
                 </div>
                 <div id="camera-instructions" class="visually-hidden">
@@ -92,8 +94,10 @@ export class AddStoryView {
 
   afterRender() {
     this.formElement = document.querySelector('#story-form');
-    this.cameraButton = document.querySelector('#camera-button');
+    this.cameraToggle = document.querySelector('#camera-toggle');
     this.cameraPreview = document.querySelector('#camera-preview');
+    this.switchCameraBtn = document.querySelector('#switch-camera');
+    this.cameraCaptureBtn = document.querySelector('#camera-capture');
     this.mapElement = document.querySelector('#map');
     this.latInput = document.querySelector('#lat');
     this.lonInput = document.querySelector('#lon');
@@ -101,34 +105,92 @@ export class AddStoryView {
     this.uploadPhotoBtn = document.querySelector('#upload-photo-btn');
     this.dropArea = document.querySelector('#drop-area');
 
-    this.uploadPhotoBtn.addEventListener('click', () => {
-      this.photoInput.click();
-    });
+    this.cameraActive = false;
+    this.updateCameraUI();
 
-    this.photoInput.addEventListener('change', (e) => {
-      if (e.target.files && e.target.files[0]) {
-        this.handleFile(e.target.files[0]);
-      }
-    });
+    if (this.cameraToggle) {
+      this.cameraToggle.addEventListener('click', async () => {
+        if (!this.cameraActive) {
+          await this.initCamera();
+          this.cameraActive = true;
+        } else {
+          this.stopCamera();
+          this.cameraActive = false;
+        }
+        this.updateCameraUI();
+      });
+    }
 
-    this.dropArea.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      this.dropArea.classList.add('dragover');
-    });
-    this.dropArea.addEventListener('dragleave', (e) => {
-      e.preventDefault();
-      this.dropArea.classList.remove('dragover');
-    });
-    this.dropArea.addEventListener('drop', (e) => {
-      e.preventDefault();
-      this.dropArea.classList.remove('dragover');
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        this.handleFile(e.dataTransfer.files[0]);
+    if (this.switchCameraBtn) {
+      this.switchCameraBtn.addEventListener('click', async () => {
+        if (this.cameraActive) {
+          await this.switchCamera();
+        }
+      });
+    }
+
+    if (this.cameraCaptureBtn) {
+      this.cameraCaptureBtn.addEventListener('click', async () => {
+        if (this.cameraActive) {
+          await this.capturePhoto();
+        }
+      });
+    }
+
+    if (this.uploadPhotoBtn) {
+      this.uploadPhotoBtn.addEventListener('click', () => {
+        this.photoInput.click();
+      });
+    }
+
+    if (this.photoInput) {
+      this.photoInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          this.handleFile(e.target.files[0]);
+        }
+      });
+    }
+
+    if (this.dropArea) {
+      this.dropArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        this.dropArea.classList.add('dragover');
+      });
+      this.dropArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        this.dropArea.classList.remove('dragover');
+      });
+      this.dropArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        this.dropArea.classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          this.handleFile(e.dataTransfer.files[0]);
+        }
+      });
+      this.dropArea.addEventListener('click', () => {
+        this.photoInput.click();
+      });
+    }
+  }
+
+  updateCameraUI() {
+    if (this.cameraActive) {
+      if (this.cameraPreview) this.cameraPreview.style.display = 'block';
+      if (this.cameraToggle) {
+        this.cameraToggle.textContent = 'Tutup Kamera';
+        this.cameraToggle.style.background = 'linear-gradient(90deg, #e53935 0%, #ff1744 100%)';
+        this.cameraToggle.style.color = '#fff';
       }
-    });
-    this.dropArea.addEventListener('click', () => {
-      this.photoInput.click();
-    });
+      if (this.cameraCaptureBtn) this.cameraCaptureBtn.style.display = 'block';
+    } else {
+      if (this.cameraPreview) this.cameraPreview.style.display = 'none';
+      if (this.cameraToggle) {
+        this.cameraToggle.textContent = 'Buka Kamera';
+        this.cameraToggle.style.background = 'linear-gradient(90deg, #4a90e2 0%, #2563eb 100%)';
+        this.cameraToggle.style.color = '#fff';
+      }
+      if (this.cameraCaptureBtn) this.cameraCaptureBtn.style.display = 'none';
+    }
   }
 
   async initCamera() {
@@ -190,30 +252,49 @@ export class AddStoryView {
   }
 
   stopCamera() {
-    if (this.mediaStream) {
-      this.mediaStream.getTracks().forEach(track => {
-        track.stop();
-        track.enabled = false;
-      });
-      this.mediaStream = null;
-    }
+    try {
+      // First hide the preview and stop all tracks
+      if (this.mediaStream) {
+        this.mediaStream.getTracks().forEach(track => {
+          track.stop();
+          track.enabled = false;
+        });
+        this.mediaStream = null;
+      }
 
-    // Clear video source
-    if (this.cameraPreview) {
-      this.cameraPreview.srcObject = null;
-      this.cameraPreview.load();
-    }
+      // Clear video source and hide preview
+      if (this.cameraPreview) {
+        this.cameraPreview.srcObject = null;
+        this.cameraPreview.style.display = 'none';
+        this.cameraPreview.load();
+      }
 
-    // Clear photo preview
-    const previewContainer = document.querySelector('#photo-preview');
-    if (previewContainer) {
-      previewContainer.innerHTML = '';
-    }
+      // Clear photo preview
+      const previewContainer = document.querySelector('#photo-preview');
+      if (previewContainer) {
+        previewContainer.innerHTML = '';
+      }
 
-    // Clear photo blob
-    if (this.photoBlob) {
-      URL.revokeObjectURL(URL.createObjectURL(this.photoBlob));
-      this.photoBlob = null;
+      // Clear photo blob
+      if (this.photoBlob) {
+        URL.revokeObjectURL(URL.createObjectURL(this.photoBlob));
+        this.photoBlob = null;
+      }
+
+      // Reset camera state and UI
+      this.cameraActive = false;
+      this.updateCameraUI();
+
+      // Hide capture button
+      if (this.cameraCaptureBtn) {
+        this.cameraCaptureBtn.style.display = 'none';
+      }
+
+      // Reset form
+      this.resetForm();
+    } catch (error) {
+      console.error('Error stopping camera:', error);
+      this.showError('Gagal menutup kamera. Silakan coba lagi.');
     }
   }
 
@@ -281,18 +362,36 @@ export class AddStoryView {
   }
 
   resetForm() {
-    this.formElement.reset();
+    if (this.formElement) {
+      this.formElement.reset();
+    }
     this.photoBlob = null;
     const previewContainer = document.querySelector('#photo-preview');
     if (previewContainer) {
       previewContainer.innerHTML = '';
     }
-    this.latInput.value = '';
-    this.lonInput.value = '';
+    if (this.latInput) this.latInput.value = '';
+    if (this.lonInput) this.lonInput.value = '';
   }
 
   cleanup() {
-    this.stopCamera();
+    try {
+      // Stop camera and clean up resources
+      this.stopCamera();
+
+      // Clear any remaining event listeners
+      if (this.cameraToggle) {
+        this.cameraToggle.removeEventListener('click', this.cameraToggleHandler);
+      }
+      if (this.switchCameraBtn) {
+        this.switchCameraBtn.removeEventListener('click', this.switchCameraHandler);
+      }
+      if (this.cameraCaptureBtn) {
+        this.cameraCaptureBtn.removeEventListener('click', this.capturePhotoHandler);
+      }
+    } catch (error) {
+      console.error('Error cleaning up camera:', error);
+    }
   }
 
   async handleFile(file) {

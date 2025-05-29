@@ -12,24 +12,44 @@ export class AddStoryPresenter {
 
   async init() {
     try {
-      // Initialize camera first
-    await this.view.initCamera();
-
       // Wait for DOM to be ready
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Initialize map after DOM is ready
-    this.initMap();
+      // Panggil afterRender agar elemen sudah ada di DOM
+      await this.view.afterRender();
 
-      // Initialize event listeners
-    this.initEventListeners();
+      // Initialize event listeners first
+      this.initEventListeners();
+
+      // Wait for map container to be available with retry
+      let mapElement = null;
+      let retryCount = 0;
+      const maxRetries = 10;
+      const retryDelay = 200;
+
+      while (!mapElement && retryCount < maxRetries) {
+        mapElement = document.querySelector('#map');
+        if (!mapElement) {
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
+          retryCount++;
+        }
+      }
+
+      if (!mapElement) {
+        console.error('Map container not found after multiple attempts');
+        this.view.showError('Gagal memuat peta. Silakan refresh halaman.');
+        return;
+      }
+
+      // Initialize map after DOM is ready
+      await this.initMap();
     } catch (error) {
       console.error('Error initializing add story page:', error);
-      this.view.showError('Gagal memuat halaman. Silakan coba lagi.');
+      this.view.showError('Gagal memuat halaman. Silakan refresh halaman.');
     }
   }
 
-  initMap() {
+  async initMap() {
     try {
       const mapElement = document.querySelector('#map');
       if (!mapElement) {
@@ -38,15 +58,37 @@ export class AddStoryPresenter {
 
       // Clean up existing map if it exists
       if (this.map) {
-        this.map.remove();
+        try {
+          this.map.remove();
+        } catch (error) {
+          console.warn('Error removing existing map:', error);
+        }
         this.map = null;
       }
+
       // Fix: force remove Leaflet map instance if exists
       if (window.L && window.L.DomUtil.get('map') !== null) {
-        window.L.DomUtil.get('map')._leaflet_id = null;
+        try {
+          const mapContainer = window.L.DomUtil.get('map');
+          if (mapContainer && mapContainer._leaflet_id) {
+            mapContainer._leaflet_id = null;
+          }
+        } catch (error) {
+          console.warn('Error cleaning up map container:', error);
+        }
       }
+
       // Initialize map with Leaflet
-      this.map = L.map('map').setView([-6.2088, 106.8456], 13); // Default to Jakarta
+      this.map = L.map('map', {
+        zoomControl: true,
+        scrollWheelZoom: true,
+        dragging: true,
+        touchZoom: true,
+        doubleClickZoom: true,
+        boxZoom: true,
+        keyboard: true,
+        attributionControl: true
+      }).setView([-6.2088, 106.8456], 13); // Default to Jakarta
 
       // Define tile layers
       const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -142,33 +184,52 @@ export class AddStoryPresenter {
     }
   }
 
+  cleanup() {
+    try {
+      // Stop camera first
+      this.view.stopCamera();
+
+      // Clean up map
+      if (this.map) {
+        try {
+          // Remove marker first
+          if (this.marker) {
+            this.marker.remove();
+            this.marker = null;
+          }
+
+          // Remove all layers
+          this.map.eachLayer((layer) => {
+            this.map.removeLayer(layer);
+          });
+
+          // Remove the map
+          this.map.remove();
+          this.map = null;
+        } catch (error) {
+          console.warn('Error cleaning up map:', error);
+        }
+      }
+
+      // Remove event listeners
+      if (this.view.formElement) {
+        this.view.formElement.removeEventListener('submit', this.handleSubmit);
+      }
+
+      // Reset state
+      this.isSubmitting = false;
+    } catch (error) {
+      console.error('Error during cleanup:', error);
+    }
+  }
+
   initEventListeners() {
     const form = this.view.formElement;
-    const cameraButton = this.view.cameraButton;
-    const switchCameraButton = document.querySelector('#switch-camera');
+    const cameraCaptureBtn = this.view.cameraCaptureBtn;
+    const switchCameraButton = this.view.switchCameraBtn;
 
-    // Add cleanup on page unload
-    window.addEventListener('beforeunload', () => {
-      this.cleanup();
-    });
-
-    // Add cleanup on hash change
-    window.addEventListener('hashchange', () => {
-      this.cleanup();
-    });
-
-    cameraButton.addEventListener('click', async () => {
-      const photoBlob = await this.view.capturePhoto();
-      if (!photoBlob) {
-        this.view.showError('Gagal mengambil foto. Silakan coba lagi.');
-      }
-    });
-
-    switchCameraButton.addEventListener('click', async () => {
-      await this.view.switchCamera();
-    });
-
-    form.addEventListener('submit', async (e) => {
+    // Store the submit handler for cleanup
+    this.handleSubmit = async (e) => {
       e.preventDefault();
 
       if (this.isSubmitting) {
@@ -205,19 +266,14 @@ export class AddStoryPresenter {
           apiFormData.append('lon', parseFloat(lon));
         }
 
-        // Log form data for debugging
-        console.log('Submitting form data:', {
-          description: apiFormData.get('description'),
-          photo: apiFormData.get('photo')?.name,
-          lat: apiFormData.get('lat'),
-          lon: apiFormData.get('lon')
-        });
-
         const response = await this.model.addStory(apiFormData);
 
         if (response) {
           this.view.showSuccess('Cerita berhasil ditambahkan!');
           this.view.resetForm();
+
+          // Clean up before navigation
+          this.cleanup();
 
           // Wait a bit before redirecting
           setTimeout(() => {
@@ -232,10 +288,35 @@ export class AddStoryPresenter {
         submitButton.disabled = false;
         submitButton.textContent = 'Kirim Cerita';
       }
-    });
-  }
+    };
 
-  cleanup() {
-    this.view.stopCamera();
+    // Add cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      this.cleanup();
+    });
+
+    // Add cleanup on hash change
+    window.addEventListener('hashchange', () => {
+      this.cleanup();
+    });
+
+    if (cameraCaptureBtn) {
+      cameraCaptureBtn.addEventListener('click', async () => {
+        const photoBlob = await this.view.capturePhoto();
+        if (!photoBlob) {
+          this.view.showError('Gagal mengambil foto. Silakan coba lagi.');
+        }
+      });
+    }
+
+    if (switchCameraButton) {
+      switchCameraButton.addEventListener('click', async () => {
+        await this.view.switchCamera();
+      });
+    }
+
+    if (form) {
+      form.addEventListener('submit', this.handleSubmit);
+    }
   }
 }

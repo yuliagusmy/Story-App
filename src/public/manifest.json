@@ -1,7 +1,7 @@
 {
-  "name": "Football App",
-  "short_name": "Football",
-  "description": "A Progressive Web App for football information",
+  "name": "Story App",
+  "short_name": "Story App",
+  "description": "A Progressive Web App for sharing stories",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -46,6 +46,37 @@
       "src": "icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add New Story",
+      "short_name": "Add Story",
+      "description": "Add a new story to share",
+      "url": "/add-story",
+      "icons": [
+        {
+          "src": "icons/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Story App on Desktop"
+    },
+    {
+      "src": "screenshots/mobile.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Story App on Mobile"
     }
   ]
 }

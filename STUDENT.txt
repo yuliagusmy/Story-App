@@ -7,7 +7,7 @@ APP_URL=https://story-app-dicoding.web.app
 
 Nama: Yuliagus
 ID: fc558d5y1116
-URL Deployment: [URL Netlify Anda setelah deploy]
+URL Deployment: https://storyappmieayam.netlify.app
 
 Fitur yang sudah diimplementasikan:
 1. PWA (Progressive Web App)
