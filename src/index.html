@@ -248,11 +248,14 @@
       const isLoggedIn = !!auth.getToken();
       const navbar = document.querySelector('.bottom-navbar');
 
-      if (isLoggedIn && hash !== '#/auth' && hash !== '#/register') {
-        navbar.classList.remove('hidden');
-      } else {
+      // Hide navbar if not logged in or on auth page
+      if (!isLoggedIn || hash === '#/auth' || hash === '#/register') {
         navbar.classList.add('hidden');
+        return;
       }
+
+      // Show navbar only for logged in users on non-auth pages
+      navbar.classList.remove('hidden');
     }
 
     function updateActiveNav() {
